@@ -4,8 +4,8 @@ require.config({
     }
 });
 
-require(['gui'], function(gui){
+require(['game'], function(g){
    
-   gui.drawGrid();
+   g.start();
    
 });

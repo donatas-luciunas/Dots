@@ -1,4 +1,4 @@
-define(function(){
+define(['jquery'], function($){
    
    var defaults = {
        scale: 1,
@@ -12,6 +12,17 @@ define(function(){
    gui.canvas = document.getElementById("matrix");
    
    var context = gui.canvas.getContext("2d");
+   
+   gui.initialize = function (params)
+   {
+       gui.drawGrid();
+       $(gui.canvas).click(params.onClick);
+   };
+   
+   gui.refresh = function (dots){
+       gui.drawGrid();
+       gui.drawDots(dots);
+   };
    
    gui.drawGrid = function()
    {
@@ -27,6 +38,10 @@ define(function(){
 
         context.strokeStyle = "black";
         context.stroke();
+   };
+   
+   gui.drawDots = function(dots){
+       console.log(dots);
    };
    
    return gui;
