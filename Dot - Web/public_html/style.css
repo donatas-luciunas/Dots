@@ -1,0 +1,12 @@
+/* 
+    Document   : style
+    Created on : Sep 16, 2013, 9:24:10 AM
+    Author     : Donatas
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+html { height: 100%; }
+body { margin: 0; padding: 0; min-height: 100%; height: 100%; overflow: hidden; }
+
+#matrix { margin: 0; padding: 0; width: 100%; min-height: 100%; height: 100%; height: auto !important; overflow: hidden;}

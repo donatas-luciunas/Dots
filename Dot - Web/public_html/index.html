@@ -1,0 +1,27 @@
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Dots - Web</title>
+        <link href="style.css" rel="stylesheet" />
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+    <body>
+        <canvas id="matrix">Canvas</canvas>
+        
+        <script type="text/javascript">
+            (function () {
+                    'use strict';
+                    var a = document.createElement('script');
+                    a.setAttribute('data-main', 'js/application');
+                    a.type = 'text/javascript';
+                    a.async = false;
+                    a.src = 'js/require.js';
+                    document.head.insertBefore(a, document.head.childNodes[document.head.childNodes.length]);
+                }());
+        </script>
+    </body>
+</html>
