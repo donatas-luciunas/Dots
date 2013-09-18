@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-define(['gui'], function(gui){
+define(function(){
     
     var logic = {};
     var dots = [];
@@ -20,24 +20,26 @@ define(['gui'], function(gui){
     graph.vertexs[graph.vertexs.length] = {x: 0, y: 0};
     
     console.log(graph.vertexs);
-    
-//    logic.start = function ()
-//    {
-//        gui.drawGrid();
-//    };
-
-
+   
     logic.initialise = function(){
-        gui.initialize({
-            onClick: function (e){
-                logic.placeDot(e.clientX, e.clientY);
-                gui.refresh(dots);
-            }
-        });
+//        gui.initialize({
+//            onClick: function (x, y){
+//                logic.placeDot(x, y);
+//                gui.refresh(dots);
+//            }
+//        });
     };
 
     logic.placeDot = function(x, y){
         dots[dots.length] = {x: x, y: y};
+        
+        // On success should return array of dots path
+        // and count score
+        // else - false
+    };
+    
+    logic.getScore = function () {
+        // retuns array of players score
     };
     
     logic.getDots = function(){
