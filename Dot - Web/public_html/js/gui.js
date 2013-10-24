@@ -64,14 +64,22 @@ define(['logic', 'jquery'], function(logic, $) {
             if (e.originalEvent.detail > 0 || e.originalEvent.wheelDelta < 0) { //alternative options for wheelData: wheelDeltaX & wheelDeltaY
                 //scroll down
                 if (gui.scale < 0.2) return;
-                gui.pos.x -= gui.mousePos.x * 0.1 / gui.scale;
-                gui.pos.y -= gui.mousePos.y * 0.1 / gui.scale;
+                var sk = (gui.scale - 0.1) / gui.scale;
+                gui.pos.x = sk * (gui.pos.x + gui.mousePos.x) - gui.mousePos.x;
+                gui.pos.y = sk * (gui.pos.y + gui.mousePos.y) - gui.mousePos.y;
+                $console.text('x: ' + gui.pos.x + '; y: ' + gui.pos.y);
+                //gui.pos.x -= gui.mousePos.x * 0.1 / gui.scale;
+                //gui.pos.y -= gui.mousePos.y * 0.1 / gui.scale;
                 gui.scale -= 0.1;
             } else {
                 //scroll up
                 if (gui.scale > 5) return;
-                gui.pos.x += gui.mousePos.x * 0.1 / gui.scale;
-                gui.pos.y += gui.mousePos.y * 0.1 / gui.scale;
+                var sk = (gui.scale + 0.1) / gui.scale;
+                gui.pos.x = sk * (gui.pos.x + gui.mousePos.x) - gui.mousePos.x;
+                gui.pos.y = sk * (gui.pos.y + gui.mousePos.y) - gui.mousePos.y;
+                $console.text('x: ' + gui.pos.x + '; y: ' + gui.pos.y);
+//                gui.pos.x += gui.mousePos.x * 0.1 / gui.scale;
+//                gui.pos.y += gui.mousePos.y * 0.1 / gui.scale;
                 gui.scale += 0.1;
             }
             //prevent page fom scrolling
@@ -83,16 +91,16 @@ define(['logic', 'jquery'], function(logic, $) {
 
     var coordToPos = function(x, y) {
         return {
-            x: parseInt(Math.round((x / gui.scale + gui.pos.x) / defaults.cellWidth)),
-            y: parseInt(Math.round((y / gui.scale + gui.pos.y) / defaults.cellHeight))
+            x: parseInt(Math.round((x + gui.pos.x) / (gui.scale * defaults.cellWidth))),
+            y: parseInt(Math.round((y + gui.pos.y) / (gui.scale * defaults.cellHeight)))
         };
     };
     
     var posToCoord = function(pos)
     {
         return {
-            x: pos.x * defaults.cellWidth * gui.scale - gui.pos.x * gui.scale,
-            y: pos.y * defaults.cellHeight * gui.scale - gui.pos.y * gui.scale
+            x: pos.x * defaults.cellWidth * gui.scale - gui.pos.x,
+            y: pos.y * defaults.cellHeight * gui.scale - gui.pos.y
         }
     }
 
@@ -127,10 +135,10 @@ define(['logic', 'jquery'], function(logic, $) {
         context.strokeStyle = "black";
 
         context.beginPath();
-        var startX = (defaults.cellWidth - gui.pos.x) % defaults.cellWidth * gui.scale;
-        var startY = (defaults.cellHeight - gui.pos.y) % defaults.cellHeight * gui.scale;
         var cellWidth = (defaults.cellWidth * gui.scale);
         var cellHeight = (defaults.cellHeight * gui.scale);
+        var startX = (cellWidth - gui.pos.x) % cellWidth;
+        var startY = (cellHeight - gui.pos.y) % cellHeight;
         
         for (var x = startX; x <= gui.canvas.width; x += cellWidth) {
             context.moveTo(x + p, p);

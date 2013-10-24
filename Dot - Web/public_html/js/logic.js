@@ -70,11 +70,6 @@ define(function(){
             var path1 = findPath(u);
             var path2 = findPath(v);
             
-//            var cycle = path1;
-//            for (var i = 0; (i < path2.length) && (path2[path2.length - i] === path1[path1.length - i]); i++){
-//                cycle.splice(cycle.length, 1);
-//            }
-            
             while (path1[path1.length - 2] === path2[path2.length - 2]){
                 path1 = path1.splice(0, path1.length - 1);
                 path2 = path2.splice(0, path2.length - 1);
