@@ -7,7 +7,9 @@ define(function(){
     
     var logic = {};
     var dots = [];
-    
+    var players = [ { dotColor: "red", hoverColor: "rgba(255, 0, 0, 0.5)" },
+                    { dotColor: "blue", hoverColor: "rgba(0, 0, 255, 0.5)" } ],
+        currentPlayer = 0;
     
     
     var graph = {};
@@ -110,7 +112,7 @@ define(function(){
             
         };
         
-        bfs();
+        // bfs();
         
 //        gui.initialize({
 //            onClick: function (x, y){
@@ -121,7 +123,31 @@ define(function(){
     };
 
     logic.placeDot = function(x, y){
-        dots[dots.length] = {x: x, y: y};
+        
+        var dotAlreadyExists = function(x, y){
+            
+            for (var i = 0; i < dots.length; i++){
+                if (dots[i].x === x && dots[i].y === y)
+                    return true;
+            }
+            
+            return false;
+            
+        };
+        
+        if (dotAlreadyExists(x, y)){
+            return { success: false };
+        }
+        
+        dots[dots.length] = { x: x, y: y };
+        
+        if (currentPlayer === 0){
+            currentPlayer = 1;
+        } else {
+            currentPlayer = 0;
+        }
+        
+        return { success: true };
         
         // On success should return array of dots path
         // and count score
@@ -135,6 +161,10 @@ define(function(){
     logic.getDots = function(){
         return dots;
     };
+    
+    logic.getCurrentPlayer = function(){
+        return players[currentPlayer];
+    }
     
     return logic;
     

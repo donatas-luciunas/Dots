@@ -10,8 +10,9 @@ define(['logic', 'jquery'], function(logic, $) {
     var gui = {},
         context,
         dots = [],
-        navigating = false;
-
+        navigating = false,
+        currentPlayer;
+       
     gui.scale = defaults.scale;
     gui.pos = { x: 0, y: 0 };
     gui.mousePos = { x: 0, y: 0 };
@@ -21,10 +22,26 @@ define(['logic', 'jquery'], function(logic, $) {
     var bindEvents = function() {
 
         var $canvas = $(gui.canvas);
+        
         $canvas.click(function(e) {
+            
             var coord = coordToPos(e.clientX, e.clientY);
-            logic.placeDot(coord.x, coord.y);
-            gui.placeDot(coord);
+            var result = logic.placeDot(coord.x, coord.y);
+            
+            if (result.success){
+                
+                gui.placeDot(coord, currentPlayer.dotColor);
+                
+                if (result.cycle){
+                    // TODO: Draw cycle
+                }
+                
+                currentPlayer = logic.getCurrentPlayer();
+                
+            } else {
+                alertPositionTaken(coord.x, coord.y);
+            }
+            
         });
         
         $canvas.bind('contextmenu', function(){
@@ -35,16 +52,13 @@ define(['logic', 'jquery'], function(logic, $) {
             
             if (navigating)
             {
-                gui.pos.x = gui.pos.x + (gui.mousePos.x - e.clientX) / gui.scale;
-                gui.pos.y = gui.pos.y + (gui.mousePos.y - e.clientY) / gui.scale;
-                $console.text('x: ' + gui.pos.x + '; y: ' + gui.pos.y);
+                gui.pos.x = gui.pos.x + (gui.mousePos.x - e.clientX);
+                gui.pos.y = gui.pos.y + (gui.mousePos.y - e.clientY);
             }
             
             gui.mousePos = { x: e.clientX, y: e.clientY }
             
-            var pos = coordToPos(e.clientX, e.clientY);
             gui.refresh();
-            gui.drawDot(pos, "rgba(255, 0, 0, 0.5)");
         });
         
         $canvas.mousedown(function(e){
@@ -67,9 +81,6 @@ define(['logic', 'jquery'], function(logic, $) {
                 var sk = (gui.scale - 0.1) / gui.scale;
                 gui.pos.x = sk * (gui.pos.x + gui.mousePos.x) - gui.mousePos.x;
                 gui.pos.y = sk * (gui.pos.y + gui.mousePos.y) - gui.mousePos.y;
-                $console.text('x: ' + gui.pos.x + '; y: ' + gui.pos.y);
-                //gui.pos.x -= gui.mousePos.x * 0.1 / gui.scale;
-                //gui.pos.y -= gui.mousePos.y * 0.1 / gui.scale;
                 gui.scale -= 0.1;
             } else {
                 //scroll up
@@ -77,9 +88,6 @@ define(['logic', 'jquery'], function(logic, $) {
                 var sk = (gui.scale + 0.1) / gui.scale;
                 gui.pos.x = sk * (gui.pos.x + gui.mousePos.x) - gui.mousePos.x;
                 gui.pos.y = sk * (gui.pos.y + gui.mousePos.y) - gui.mousePos.y;
-                $console.text('x: ' + gui.pos.x + '; y: ' + gui.pos.y);
-//                gui.pos.x += gui.mousePos.x * 0.1 / gui.scale;
-//                gui.pos.y += gui.mousePos.y * 0.1 / gui.scale;
                 gui.scale += 0.1;
             }
             //prevent page fom scrolling
@@ -87,6 +95,12 @@ define(['logic', 'jquery'], function(logic, $) {
             return false;
         });
 
+    };
+    
+    var alertPositionTaken = function (x, y) {
+        // TODO: Need better implementation
+        //alert('Pozicija užimta!');
+        console.log('Position is already taken.');
     };
 
     var coordToPos = function(x, y) {
@@ -115,12 +129,15 @@ define(['logic', 'jquery'], function(logic, $) {
         gui.drawGrid();
 
         bindEvents();
+        
+        currentPlayer = logic.getCurrentPlayer();
     };
 
     gui.refresh = function() {
         gui.clear();
         gui.drawGrid();
         gui.drawDots();
+        gui.drawDot(coordToPos(gui.mousePos.x, gui.mousePos.y), currentPlayer.hoverColor);
     };
 
     gui.clear = function()
@@ -153,9 +170,9 @@ define(['logic', 'jquery'], function(logic, $) {
         context.stroke();
     };
 
-    gui.placeDot = function(dot)
+    gui.placeDot = function(dot, color)
     {
-        dots[dots.length] = dot;
+        dots[dots.length] = { coord: dot, color: color };
         gui.refresh();
     };
 
@@ -173,15 +190,14 @@ define(['logic', 'jquery'], function(logic, $) {
     gui.drawDots = function() {
         var r = defaults.radius * gui.scale;
         context.lineWidth = 4;
-        context.strokeStyle = "red";
-        context.beginPath();
         for (var i = 0; i < dots.length; i++) {
-            var coord = posToCoord(dots[i]);
+            context.beginPath();
+            context.strokeStyle = dots[i].color;
+            var coord = posToCoord(dots[i].coord);
             context.moveTo(coord.x + r + 0.5, coord.y);
             context.arc(coord.x + 0.5, coord.y + 0.5, r, 0, 2 * Math.PI);
-            // gui.drawDot(dots[i])
+            context.stroke();
         }
-        context.stroke();
     };
 
     return gui;
