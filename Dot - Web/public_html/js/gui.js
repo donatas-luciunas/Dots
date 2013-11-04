@@ -4,7 +4,8 @@ define(['logic', 'jquery'], function(logic, $) {
         scale: 1,
         cellWidth: 50,
         cellHeight: 50,
-        radius: 20
+        radius: 20,
+        animationTimeout: 50
     };
 
     var gui = {},
@@ -25,12 +26,12 @@ define(['logic', 'jquery'], function(logic, $) {
         
         $canvas.click(function(e) {
             
-            var coord = coordToPos(e.clientX, e.clientY);
-            var result = logic.placeDot(coord.x, coord.y);
+            var pos = coordToPos(e.clientX, e.clientY);
+            var result = logic.placeDot(pos.x, pos.y);
             
             if (result.success){
                 
-                gui.placeDot(coord, currentPlayer.dotColor);
+                gui.placeDot(pos, currentPlayer.dotColor);
                 
                 if (result.cycles.length > 0){
                     // TODO: Draw cycle
@@ -41,7 +42,7 @@ define(['logic', 'jquery'], function(logic, $) {
                 currentPlayer = logic.getCurrentPlayer();
                 
             } else {
-                alertPositionTaken(coord.x, coord.y);
+                alertPositionTaken(pos.x, pos.y);
             }
             
         });
@@ -100,9 +101,79 @@ define(['logic', 'jquery'], function(logic, $) {
     };
     
     var alertPositionTaken = function (x, y) {
-        // TODO: Need better implementation
-        //alert('Pozicija užimta!');
+        
+        var coord = posToCoord({ x: x, y: y });
+               
+        var animation = (function(strokeStyle){
+          
+            var a = {};
+            var p = 0.5;
+            var context, x, y, w, h,
+                framesCount = 0, posNum = 1;
+            
+            a.initialize = function(_context, _x, _y, _w, _h){
+                context = _context;
+                x = _x + 2;
+                y = _y + 2;
+                w = _w - 4;
+                h = _h - 4;
+            };
+            
+            a.applyNextFrame = function(){
+                
+                if (posNum % 2){
+                    
+                    context.beginPath();
+                    context.strokeStyle = strokeStyle;
+                    context.lineWidth = 3;
+                    context.moveTo(x + p, y + p);
+                    context.lineTo(x + w + p, y + h + p);
+                    context.moveTo(x + w + p, y + p);
+                    context.lineTo(x + p, y + h + p);
+                    context.stroke();
+                    
+                }
+                
+                framesCount++;
+                if (framesCount > 5){
+                    framesCount = 0;
+                    posNum++;
+                    
+                    if (posNum > 4){
+                        return false;
+                    }   
+                }
+                
+                return true;
+                
+            };
+            
+            return a;
+            
+        })("red");
+        
+        animate(coord.x - 10, coord.y - 10, 20, 20, animation);
+        
         console.log('Position is already taken.');
+    };
+    
+    var animate = function(x, y, w, h, animation){
+        
+        var p = 0.5;
+        
+        var background = context.getImageData(x + p, y + p, w, h);
+        
+        animation.initialize(context, x, y, w, h);
+        
+        var drawFrame = function(){
+            context.putImageData(background, x, y);
+            if (animation.applyNextFrame()){
+                setTimeout(drawFrame, defaults.animationTimeout);
+            }
+        };
+        
+        drawFrame();
+        
     };
 
     var coordToPos = function(x, y) {
