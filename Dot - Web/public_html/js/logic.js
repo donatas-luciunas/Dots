@@ -5,6 +5,7 @@
 
 define(function(){
     
+    var ROOT_PARENT = -2;
     var logic = {};
     var dots = [];
     var players = [ { dotColor: "red", hoverColor: "rgba(255, 0, 0, 0.5)" },
@@ -22,12 +23,27 @@ define(function(){
     graph.vertexs[graph.vertexs.length] = {x: 0, y: 0};
     
     console.log(graph.vertexs);
-   
-    logic.initialise = function(){
-        
-        var vertexes = [ [ 1, 2, 3], [ 0, 6 ], [ 0, 3, 4 ], [ 0, 2 ], [ 2, 5 ], [ 4, 6 ], [ 5, 1 ] ];
-        var tree = [ -1, -1, -1, -1, -1, -1, -1 ];
     
+    var switchCurrentPlayer = function(){
+        if (currentPlayer === 0){
+            currentPlayer = 1;
+        } else {
+            currentPlayer = 0;
+        }
+    };
+    
+    var searchForCycles = function(){
+        
+//        var vertexes = [ [ 1, 2, 3], [ 0, 6 ], [ 0, 3, 4 ], [ 0, 2 ], [ 2, 5 ], [ 4, 6 ], [ 5, 1 ] ];
+        
+        var tree = [];
+        
+        for(var i = 0; i < dots.length; i++){
+            tree[i] = -1;
+        }
+        
+        var newCycles = [];
+        
         var queue = (function(){
             
             var q = {};
@@ -35,7 +51,7 @@ define(function(){
             var index = 0;
             
             q.isEmpty = function (){
-                return (array.lenght - index) === 0;
+                return (array.length - index) === 0;
             };
             
             q.add = function (u) {
@@ -57,12 +73,10 @@ define(function(){
         var findPath = function(u){
             var path = [];
             
-            while (u !== 0){
+            while (u !== ROOT_PARENT){
                 path[path.length] = u;
                 u = tree[u];
             }
-            
-            path[path.length] = 0;
             
             return path;
         };
@@ -85,35 +99,65 @@ define(function(){
             return cycle;
         };
         
-        var bfs = function(){
+        var getAdjacentDots = function(dot)
+        {
+            var adjacentDots = [];
             
-            queue.add(0);
-            tree[0] = 0;
+            for (var i = 0; i < dots.length; i++){
+                
+                if (dot.x === dots[i].x && dot.y === dots[i].y)
+                    continue;
+                
+                if (Math.abs(dot.x - dots[i].x) < 2
+                    && Math.abs(dot.y - dots[i].y) < 2){
+                    adjacentDots[adjacentDots.length] = i;
+                }
+            }
+            return adjacentDots;
+        };
+        
+        var bfs = function(root){
+            
+            queue.add(root);
+            tree[root] = ROOT_PARENT;
             
             while (!queue.isEmpty()){
+                
                 var u = queue.front();
                 queue.pop();
                 
-                for (var i = 0; i < vertexes[u].length; i++){
+                var adjacentDots = getAdjacentDots(dots[u]);
+                
+                for (var i = 0; i < adjacentDots.length; i++){
                     
-                    var v = vertexes[u][i];
+                    var v = adjacentDots[i];
                     
                     if (tree[v] === -1){
                         // Dedam į eilę
                         queue.add(v);
                         tree[v] = u;
                     } else if (tree[u] !== v){
+                        
                         // Radom ciklą
                         var cycle = findCycle(u, v);
-                        console.log(cycle);
+                        if(cycle.length > 3){
+                            newCycles[newCycles.length] = cycle;
+                            console.log(cycle);
+                        }
                     }
                 }
+                
             }
             
         };
         
-        // bfs();
+        bfs(dots.length - 1);
         
+        return newCycles;
+    };
+   
+    logic.initialise = function(){
+                
 //        gui.initialize({
 //            onClick: function (x, y){
 //                logic.placeDot(x, y);
@@ -123,6 +167,8 @@ define(function(){
     };
 
     logic.placeDot = function(x, y){
+        
+        
         
         var dotAlreadyExists = function(x, y){
             
@@ -141,13 +187,11 @@ define(function(){
         
         dots[dots.length] = { x: x, y: y };
         
-        if (currentPlayer === 0){
-            currentPlayer = 1;
-        } else {
-            currentPlayer = 0;
-        }
+        var newCycles = searchForCycles();
         
-        return { success: true };
+        switchCurrentPlayer();
+        
+        return { success: true, cycles: newCycles };
         
         // On success should return array of dots path
         // and count score
@@ -164,7 +208,7 @@ define(function(){
     
     logic.getCurrentPlayer = function(){
         return players[currentPlayer];
-    }
+    };
     
     return logic;
     

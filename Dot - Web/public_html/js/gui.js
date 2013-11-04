@@ -32,8 +32,10 @@ define(['logic', 'jquery'], function(logic, $) {
                 
                 gui.placeDot(coord, currentPlayer.dotColor);
                 
-                if (result.cycle){
+                if (result.cycles.length > 0){
                     // TODO: Draw cycle
+                    console.log('Cycles!');
+                    console.log(result.cycles);
                 }
                 
                 currentPlayer = logic.getCurrentPlayer();
