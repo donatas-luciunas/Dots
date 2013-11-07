@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-define(function(){
+define(['dotsCounter'], function(dotsCounter){
     
     var ROOT_PARENT = -2;
     var logic = {};
@@ -23,9 +23,6 @@ define(function(){
     };
     
     var searchForCycles = function(){
-        
-//        var vertexes = [ [ 1, 2, 3], [ 0, 6 ], [ 0, 3, 4 ], [ 0, 2 ], [ 2, 5 ], [ 4, 6 ], [ 5, 1 ] ];
-        
         var tree = [];
         
         for(var i = 0; i < dots.length; i++){
@@ -154,13 +151,9 @@ define(function(){
 //                gui.refresh(dots);
 //            }
 //        });
-
     };
 
     logic.placeDot = function(x, y){
-        
-        
-        
         var dotAlreadyExists = function(x, y){
             
             for (var i = 0; i < dots.length; i++){
@@ -179,7 +172,6 @@ define(function(){
         dots[dots.length] = { x: x, y: y };
         
         var newCycles = searchForCycles();
-        countScores(); 
         switchCurrentPlayer();       
         return { success: true, cycles: newCycles };
         
@@ -189,121 +181,6 @@ define(function(){
 
         
     };
-     countScores = function(){
-        var positionCode = function(dot1, dot2) {
-            //If upper left corner 
-            if ((dot1.x - 1 === dot2.x) && (dot1.y - 1 === dot2.y)) {
-                return 1;
-            }
-            //If dot2 is above dot1
-            if ((dot1.x === dot2.x) && (dot1.y - 1 === dot2.y)) {
-                return 2;
-            }
-            //If dot2 is upper right corner
-            if ((dot1.x + 1 === dot2.x) && (dot1.y - 1 === dot2.y)) {
-                return 3;
-            }
-            //If dot2 is in the left of dot1
-            if ((dot1.x - 1 === dot2.x) && (dot1.y === dot2.y)) {
-                return 4;
-            }
-            //If dot2 is in the right of dot1
-            if ((dot1.x + 1 === dot2.x) && (dot1.y === dot2.y)) {
-                return 5;
-            }
-            //If dot2 is in lower left corner of dot1
-            if ((dot1.x - 1 === dot2.x) && (dot1.y + 1 === dot2.y)) {
-                return 6;
-            }
-            //If dot2 is above dot1
-            if ((dot1.x === dot2.x) && (dot1.y + 1 === dot2.y)) {
-                return 7;
-            }
-            //If dot2 is in the right corner of of dot1
-            if ((dot1.x + 1 === dot2.x) && (dot1.y + 1 === dot2.y)) {
-                return 8;
-            }
-        };
-        var leaveJustCorners = function(cycle) {
-            cycle[cycle.length] = cycle[0];
-            cycle[cycle.length] = cycle[1];
-            var corners = [];
-            for (var i = 0; i < cycle.length - 2; i++) {
-                var b = positionCode(cycle[i], cycle[i + 1]) !== positionCode(cycle[i + 1], cycle[i + 2]);
-                if (positionCode(cycle[i], cycle[i + 1]) !== positionCode(cycle[i + 1], cycle[i + 2])) {
-                    corners[corners.length] = cycle[i + 1];
-                }
-            }
-            cycle.splice(cycle.length - 1, 1);
-            cycle.splice(cycle.length - 1, 1);
-            return corners;
-        };
-
-        var cycle = [{x: 0, y: 0},
-            {x: 1, y: 0},
-            {x: 2, y: 0},
-            {x: 3, y: 0},
-            {x: 4, y: 0},
-            {x: 5, y: 0},
-            {x: 5, y: 1},
-            {x: 5, y: 2},
-            {x: 5, y: 3},
-            {x: 5, y: 4},
-            {x: 5, y: 5},
-            {x: 4, y: 5},
-            {x: 3, y: 5},
-            {x: 2, y: 5},
-            {x: 1, y: 5},
-            {x: 0, y: 5},
-            {x: 0, y: 4},
-            {x: 0, y: 3},
-            {x: 0, y: 2},
-            {x: 0, y: 1}];
-        var test = [
-            {x: 1, y: 1},
-            {x: 1, y: 2},
-            {x: 7, y: 7},
-            {x: 3, y: 3},
-            {x: -1, y: 2},
-            {x: 4, y: 4}
-        ];
-        
-        var corners = leaveJustCorners(cycle);
-        var polyX = [];
-        var polyY = [];
-        for (var i = 0; i < corners.length; i++) {
-            polyX[polyX.length] = corners[i].x;
-            polyY[polyY.length] = corners[i].y;
-        }
-        polySides = corners.length;
-
-        var pointInPolygon = function(x, y) {
-            var i, j = polySides - 1;
-            var oddNodes = false;
-
-            for (i = 0; i < polySides; i++) {
-                if (polyY[i] < y && polyY[j] >= y
-                        || polyY[j] < y && polyY[i] >= y) {
-                    if (polyX[i] + (y - polyY[i]) / (polyY[j] - polyY[i]) * (polyX[j] - polyX[i]) < x) {
-                        oddNodes = !oddNodes;
-                    }
-                }
-                j = i;
-            }
-
-            return oddNodes;
-        };
-        var countDotsInPolygon = function(polygon, dots){
-            var counted = 0;
-            for(var i = 0; i < dots.length; i++){
-                if(pointInPolygon(dots[i].x, dots[i].y)){
-                    counted++;
-                }
-            }
-            return counted;
-        }
-        console.log(countDotsInPolygon(cycle, test));
-    }
     logic.getScores = function () {
         // retuns array of players score
         return scores;
@@ -318,5 +195,5 @@ define(function(){
     };
     
     return logic;
-    
+    //Text to my self
 });
