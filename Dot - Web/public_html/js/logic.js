@@ -7,15 +7,18 @@ define(['dotsCounter'], function(dotsCounter) {
 
     var ROOT_PARENT = -2;
     var logic = {};
-    var dots = [[],[]];
+    var dots = [[], []];
     var players = [{dotColor: "red", hoverColor: "rgba(255, 0, 0, 0.5)"},
         {dotColor: "blue", hoverColor: "rgba(0, 0, 255, 0.5)"}],
-            currentPlayer = 0;
+    currentPlayer = 0;
     var playersNumber = 2;
-    var scores = [];
+    var scores = [[], []];
 
-    //My variables
-    //------------------------
+    //------------------------------------
+    //Variables for myself
+    myDots = [[]];
+    //------------------------------------
+
 
     var switchCurrentPlayer = function() {
         if (currentPlayer === 0) {
@@ -144,7 +147,7 @@ define(['dotsCounter'], function(dotsCounter) {
 
         return newCycles;
     };
-    
+
     //Return concrete player dots
     var getPlayerDots = function(playerInd) {
         var array = [];
@@ -175,93 +178,69 @@ define(['dotsCounter'], function(dotsCounter) {
     };
 
     logic.placeDot = function(x, y) {
-//        var dotAlreadyExists = function(x, y) {
-//
-//            for (var i = 0; i < dots.length; i++) {
-//                if (dots[i].x === x && dots[i].y === y)
-//                    return true;
-//            }
-//
-//            return false;
-//
-//        };
-//
-//        if (dotAlreadyExists(x, y)) {
-//            return {success: false};
-//        }
-          dots[currentPlayer].push({x: x, y: y, counted: false});
-//        dots[dots.length] = {x: x, y: y, counted: false};
-//
-//
-//        
-//        var currPlayerDots = getPlayerDots(0);
-//        var allOtherDots   = getPlayerDots(1);
-        
-//        console.log("First player Dots");
-//        console.log(currPlayerDots);
-//        console.log("Second player Dots");
-//        console.log(allOtherDots);
-        
-//        var allOtherDots = [];
-//        if(currentPlayer === 0){
-//            allOtherDots = getPlayerDots(1);
-//        }else{
-//            allOtherDots = getPlayerDots(0);
-//        }
-        
-        var cycIndexesToCycle = function(cycIndexes){
-            var cycle = [];
-            for(var i = 0; i < cycIndexes.length; i++){
-                cycle[cycle.length] = dots[cycIndexes[i]];
+        var dotAlreadyExists = function(x, y) {
+            for (var j = 0; j < dots.length; j++) {
+                for (var i = 0; i < dots[j].length; i++) {
+                    if (dots[j][i].x === x && dots[j][i].y === y)
+                        return true;
+                }
             }
-            return cycle;
+            return false;
+
+        };
+
+        if (dotAlreadyExists(x, y)) {
+            return {success: false};
+        }
+
+        dots[currentPlayer].push({x: x, y: y, counted: false});
+        
+        //Returns cycles when cyclesIndexes are given
+        var cyclesIndexesToCycle = function(cyclesIndexes) {
+            var cycles = [];
+            for (var j = 0; j < cyclesIndexes.length; j++) {
+                var cycle = [];
+                for (var i = 0; i < cyclesIndexes[j].length; i++) {
+                    var ind = cyclesIndexes[j][i];
+                    cycle.push(dots[currentPlayer][ind]);
+                }
+                cycles.push(cycle);
+            }
+            return cycles;
+        };
+
+        var getAllNotCurrentPlayerDots = function() {
+            if (currentPlayer === 0)
+                return dots[1];
+            return dots[0];
         };
         
-//        var newCyclesIndexes = searchForCycles(currPlayerDots);
-//        console.log("-------currPlayerDots-----------------");
-//        console.log(currPlayerDots);
-//        console.log("---------------allOtherDots-----------");
-//        console.log(allOtherDots);
-//        console.log("-------------------Cycles-----------");
-//        console.log(newCycles);
-//        console.log("Circle indexes");
-//        console.log(newCyclesIndexes);
+        //Iterate throught cycles and count how many oponent dots are in them
+        var countScores = function(cycles) {
+            var score = 0;
+            var pdots = getAllNotCurrentPlayerDots();
+            for (var i = 0; i < cycles.length; i++) {
+                score += dotsCounter.count(cycles[i], pdots);
+            }
+            return score;
+        };
+        var newCyclesIndexes = searchForCycles(dots[currentPlayer]);
+        var newCycles = cyclesIndexesToCycle(newCyclesIndexes);
         
-//        for(var i = 0; i < newCyclesIndexes.length; i++){
-//            var cycle = cycIndexesToCycle(newCyclesIndexes[i]);
-//            //console.log(cycle);
-//            var sc = dotsCounter.count(cycle, allOtherDots);
-//            scores[currentPlayer] += sc;
-////            console.log(sc);
-//        }
-        console.log(dots);
+        console.log(countScores(newCycles));
+        scores[currentPlayer] += countScores(newCycles);
+        
         switchCurrentPlayer();
-        return {success: true, cycles: newCyclesIndexes};
+
+        return {success: true, cycles: newCycles};
 
         // On success should return array of dots path
         // and count score
         // else - false
-        
-        
-        
+
 
     };
-    
-    var countScore = function(cycles){
-        var score;
-        var currPlayerDots = getPlayerDots(currentPlayer);
-        var allOtherDots = [];
-        if(currentPlayer === 0){
-            allOtherDots = getPlayerDots(1);
-        }else{
-            allOtherDots = getPlayerDots(0);
-        }
-        for(var i = 0; i < cycles.length; i++){
-            score = score + dotsCounter.count(cycles[i], allOtherDots);
-        }
-        console.log(score);
-    };
-    
+
     logic.getScores = function() {
         // retuns array of players score
         return scores;
@@ -276,5 +255,4 @@ define(['dotsCounter'], function(dotsCounter) {
     };
 
     return logic;
-    //Text to my self
 });
