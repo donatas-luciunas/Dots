@@ -109,6 +109,38 @@ define(['dotsCounter'], function(dotsCounter) {
             return adjacentDots;
         };
 
+        var compareEdge = function(a, b, c, d) {
+            if (a === c && b === d) {
+                return true;
+            }
+            if (a === d && b === c) {
+                return true;
+            }
+            return false;
+        };
+
+        var haveCommonEdge = function(c1, c2) {
+            for (var i = 0; i < c1.length - 1; i++) {
+                for (var j = 0; j < c2.length - 1; j++) {
+                    if (compareEdge(c1[i], c1[i + 1], c2[j], c2[j + 1])) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        };
+
+        //c - given cycle
+        //Return index of cycle which have common edge with given cycle
+        var alreadyIs = function(c) {
+            for (var i = 0; i < newCycles.length; i++) {
+                if (haveCommonEdge(newCycles[i], c)) {
+                    return i;
+                }
+            }
+            return -1;
+        };
+
         var bfs = function(root) {
 
             queue.add(root);
@@ -134,32 +166,20 @@ define(['dotsCounter'], function(dotsCounter) {
                         // Radom ciklą
                         var cycle = findCycle(u, v);
                         if (cycle.length > 3) {
-                            newCycles[newCycles.length] = cycle;
+                            var ind = alreadyIs(cycle);
+                            if (ind > 0) {
+                                if (newCycles[ind].length >= cycle.length) {
+                                    newCycles.slice(ind, 1);
+                                    newCycles[newCycles.length] = cycle;
+                                }
+                            } else {
+                                newCycles[newCycles.length] = cycle;
+                            }
                         }
                     }
                 }
 
             }
-//            var compareEdge = function(a, b, c, d){
-//                if(a === c && b === d){
-//                    return true;
-//                }
-//                if(a === d && b === c){
-//                    return true;
-//                }
-//                return false;
-//            };
-//
-//            var isCycleInCycle = function(c1, c2){
-//                for(var i = 0; i < c1.length; i++){
-//                    for(var j = 0; j < c2.length; j = j + 2){
-//                        if(compareEdge(c1[i], c1[i+1], c2[j], c2[j+1])){
-//                            
-//                        }
-//                    }
-//                }
-//            };
-
         };
 
         bfs(dots.length - 1);
@@ -213,7 +233,7 @@ define(['dotsCounter'], function(dotsCounter) {
         }
 
         dots[currentPlayer].push({x: x, y: y, counted: false});
-        
+
         //Returns cycles when cyclesIndexes are given
         var cyclesIndexesToCycle = function(cyclesIndexes) {
             var cycles = [];
@@ -233,7 +253,7 @@ define(['dotsCounter'], function(dotsCounter) {
                 return dots[1];
             return dots[0];
         };
-        
+
         //Iterate throught cycles and count how many oponent dots are in them
         var countScores = function(cycles) {
             var score = 0;
@@ -244,12 +264,13 @@ define(['dotsCounter'], function(dotsCounter) {
             return score;
         };
         var newCyclesIndexes = searchForCycles(dots[currentPlayer]);
+        console.log("NewCyclesIndexes");
         console.log(newCyclesIndexes);
         var newCycles = cyclesIndexesToCycle(newCyclesIndexes);
-        
+
         console.log(countScores(newCycles));
         scores[currentPlayer] += countScores(newCycles);
-        
+
         switchCurrentPlayer();
 
         return {success: true, cycles: newCycles};
