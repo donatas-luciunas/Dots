@@ -140,6 +140,25 @@ define(['dotsCounter'], function(dotsCounter) {
                 }
 
             }
+//            var compareEdge = function(a, b, c, d){
+//                if(a === c && b === d){
+//                    return true;
+//                }
+//                if(a === d && b === c){
+//                    return true;
+//                }
+//                return false;
+//            };
+//
+//            var isCycleInCycle = function(c1, c2){
+//                for(var i = 0; i < c1.length; i++){
+//                    for(var j = 0; j < c2.length; j = j + 2){
+//                        if(compareEdge(c1[i], c1[i+1], c2[j], c2[j+1])){
+//                            
+//                        }
+//                    }
+//                }
+//            };
 
         };
 
@@ -225,6 +244,7 @@ define(['dotsCounter'], function(dotsCounter) {
             return score;
         };
         var newCyclesIndexes = searchForCycles(dots[currentPlayer]);
+        console.log(newCyclesIndexes);
         var newCycles = cyclesIndexesToCycle(newCyclesIndexes);
         
         console.log(countScores(newCycles));
