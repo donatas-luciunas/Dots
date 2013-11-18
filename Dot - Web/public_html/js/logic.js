@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-define(['dotsCounter'], function(dotsCounter) {
+define(['dotsCounter', 'mapper'], function(dotsCounter, mapper) {
 
     var ROOT_PARENT = -2;
     var logic = {};
@@ -250,9 +250,11 @@ define(['dotsCounter'], function(dotsCounter) {
         console.log(countScores(newCycles));
         scores[currentPlayer] += countScores(newCycles);
         
+        var oldPlayer = currentPlayer;
+        
         switchCurrentPlayer();
 
-        return {success: true, cycles: newCycles};
+        return {success: true, cycles: mapper.cyclesToGui(newCyclesIndexes, oldPlayer) };
 
         // On success should return array of dots path
         // and count score
@@ -267,7 +269,7 @@ define(['dotsCounter'], function(dotsCounter) {
     };
 
     logic.getDots = function() {
-        return dots;
+        return mapper.dotsToGui(dots);
     };
 
     logic.getCurrentPlayer = function() {
