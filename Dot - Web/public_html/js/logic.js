@@ -271,6 +271,8 @@ define(['dotsCounter', 'mapper'], function(dotsCounter, mapper) {
         console.log(scores);
         var oldPlayer = currentPlayer;
         
+        var oldPlayer = currentPlayer;
+        
         switchCurrentPlayer();
 
         return {success: true, cycles: mapper.cyclesToGui(newCyclesIndexes, oldPlayer) };
