@@ -101,8 +101,9 @@ define(['dotsCounter', 'mapper'], function(dotsCounter, mapper) {
                 if (dot.x === dots[i].x && dot.y === dots[i].y)
                     continue;
 
-                if (Math.abs(dot.x - dots[i].x) < 2
-                        && Math.abs(dot.y - dots[i].y) < 2) {
+                if (!dots[i].counted &&
+                    Math.abs(dot.x - dots[i].x) < 2
+                    && Math.abs(dot.y - dots[i].y) < 2) {
                     adjacentDots[adjacentDots.length] = i;
                 }
             }

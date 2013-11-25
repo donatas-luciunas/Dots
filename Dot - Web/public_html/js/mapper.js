@@ -27,7 +27,7 @@ define([], function(){
     mapper.cycleToGui = function(cycle, player){
         var c = [];
         for (var i = 0; i < cycle.length; i++){
-            c[i] = cycle[i] * 2 - player;
+            c[i] = cycle[i] * 2 + player;
         }
         return c;
     };
