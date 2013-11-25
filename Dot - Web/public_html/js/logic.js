@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-define(['dotsCounter'], function(dotsCounter) {
+define(['dotsCounter', 'mapper'], function(dotsCounter, mapper) {
 
     var ROOT_PARENT = -2;
     var logic = {};
@@ -12,7 +12,7 @@ define(['dotsCounter'], function(dotsCounter) {
         {dotColor: "blue", hoverColor: "rgba(0, 0, 255, 0.5)"}],
     currentPlayer = 0;
     var playersNumber = 2;
-    var scores = [[], []];
+    var scores = [0, 0];
 
     //------------------------------------
     //Variables for myself
@@ -167,10 +167,9 @@ define(['dotsCounter'], function(dotsCounter) {
                         var cycle = findCycle(u, v);
                         if (cycle.length > 3) {
                             var ind = alreadyIs(cycle);
-                            if (ind > 0) {
+                            if (ind >= 0) {
                                 if (newCycles[ind].length >= cycle.length) {
-                                    newCycles.slice(ind, 1);
-                                    newCycles[newCycles.length] = cycle;
+                                    newCycles[ind] = cycle;
                                 }
                             } else {
                                 newCycles[newCycles.length] = cycle;
@@ -267,13 +266,14 @@ define(['dotsCounter'], function(dotsCounter) {
         console.log("NewCyclesIndexes");
         console.log(newCyclesIndexes);
         var newCycles = cyclesIndexesToCycle(newCyclesIndexes);
-
-        console.log(countScores(newCycles));
-        scores[currentPlayer] += countScores(newCycles);
-
+        var countedScores = countScores(newCycles);
+        scores[currentPlayer] += countedScores;
+        console.log(scores);
+        var oldPlayer = currentPlayer;
+        
         switchCurrentPlayer();
 
-        return {success: true, cycles: newCycles};
+        return {success: true, cycles: mapper.cyclesToGui(newCyclesIndexes, oldPlayer) };
 
         // On success should return array of dots path
         // and count score
@@ -288,7 +288,7 @@ define(['dotsCounter'], function(dotsCounter) {
     };
 
     logic.getDots = function() {
-        return dots;
+        return mapper.dotsToGui(dots);
     };
 
     logic.getCurrentPlayer = function() {

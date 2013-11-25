@@ -11,6 +11,7 @@ define(['logic', 'jquery'], function(logic, $) {
     var gui = {},
         context,
         dots = [],
+        cycles = [],
         navigating = false,
         currentPlayer;
        
@@ -34,9 +35,7 @@ define(['logic', 'jquery'], function(logic, $) {
                 gui.placeDot(pos, currentPlayer.dotColor);
                 
                 if (result.cycles.length > 0){
-                    // TODO: Draw cycle
-                    console.log('Cycles!');
-                    console.log(result.cycles);
+                    gui.placeCycles(result.cycles, currentPlayer.dotColor);                    
                 }
                 
                 currentPlayer = logic.getCurrentPlayer();
@@ -104,76 +103,119 @@ define(['logic', 'jquery'], function(logic, $) {
         
         var coord = posToCoord({ x: x, y: y });
                
-        var animation = (function(strokeStyle){
-          
-            var a = {};
-            var p = 0.5;
-            var context, x, y, w, h,
-                framesCount = 0, posNum = 1;
-            
-            a.initialize = function(_context, _x, _y, _w, _h){
-                context = _context;
-                x = _x + 2;
-                y = _y + 2;
-                w = _w - 4;
-                h = _h - 4;
-            };
-            
-            a.applyNextFrame = function(){
-                
-                if (posNum % 2){
-                    
-                    context.beginPath();
-                    context.strokeStyle = strokeStyle;
-                    context.lineWidth = 3;
-                    context.moveTo(x + p, y + p);
-                    context.lineTo(x + w + p, y + h + p);
-                    context.moveTo(x + w + p, y + p);
-                    context.lineTo(x + p, y + h + p);
-                    context.stroke();
-                    
-                }
-                
-                framesCount++;
-                if (framesCount > 5){
-                    framesCount = 0;
-                    posNum++;
-                    
-                    if (posNum > 4){
-                        return false;
-                    }   
-                }
-                
-                return true;
-                
-            };
-            
-            return a;
-            
-        })("red");
+//        var animation = (function(strokeStyle){
+//          
+//            var a = {};
+//            var p = 0.5;
+//            var context, x, y, w, h,
+//                framesCount = 0, posNum = 1;
+//            
+//            a.initialize = function(_context, _x, _y, _w, _h){
+//                context = _context;
+//                x = _x + 2;
+//                y = _y + 2;
+//                w = _w - 4;
+//                h = _h - 4;
+//            };
+//            
+//            a.applyNextFrame = function(){
+//                
+//                if (posNum % 2){
+//                    
+//                    context.beginPath();
+//                    context.strokeStyle = strokeStyle;
+//                    context.lineWidth = 3;
+//                    context.moveTo(x + p, y + p);
+//                    context.lineTo(x + w + p, y + h + p);
+//                    context.moveTo(x + w + p, y + p);
+//                    context.lineTo(x + p, y + h + p);
+//                    context.stroke();
+//                    
+//                }
+//                
+//                framesCount++;
+//                if (framesCount > 5){
+//                    framesCount = 0;
+//                    posNum++;
+//                    
+//                    if (posNum > 4){
+//                        return false;
+//                    }   
+//                }
+//                
+//                return true;
+//                
+//            };
+//            
+//            return a;
+//            
+//        })("red");
         
-        animate(coord.x - 10, coord.y - 10, 20, 20, animation);
+        //animate(coord.x - 10, coord.y - 10, 20, 20, animation);
+        
+        var animation = (function(){
+            
+            var a;
+            var hidden = true;
+            var blinks = 0;
+            
+            var animate = function(){
+                hidden = !hidden;
+                if (hidden){
+                    a.hide();
+                } else {
+                    a.show();
+                    blinks++;
+                }
+                if (blinks < 3){
+                    setTimeout(animate, 300);
+                } else {
+                    destroy();
+                }
+            };
+            
+            var destroy = function(){
+                a.remove();
+            };
+            
+            return function(_a){
+                a = _a;
+                a.addClass('already-taken');
+                animate();
+            };
+            
+        })();
+        
+        animate(coord.x - 9, coord.y - 9, animation);
         
         console.log('Position is already taken.');
     };
     
-    var animate = function(x, y, w, h, animation){
-        
-        var p = 0.5;
-        
-        var background = context.getImageData(x + p, y + p, w, h);
-        
-        animation.initialize(context, x, y, w, h);
-        
-        var drawFrame = function(){
-            context.putImageData(background, x, y);
-            if (animation.applyNextFrame()){
-                setTimeout(drawFrame, defaults.animationTimeout);
-            }
-        };
-        
-        drawFrame();
-        
+//    var animate = function(x, y, w, h, animation){
+//        
+//        var p = 0.5;
+//        
+//        var background = context.getImageData(x + p, y + p, w, h);
+//        
+//        animation.initialize(context, x, y, w, h);
+//        
+//        var drawFrame = function(){
+//            context.putImageData(background, x, y);
+//            if (animation.applyNextFrame()){
+//                setTimeout(drawFrame, defaults.animationTimeout);
+//            }
+//        };
+//        
+//        drawFrame();
+//        
+//    };
+
+    var animate = function(x, y, animation){
+        var a = $('<span></span>')
+                .addClass('animation')
+                .css({ left: x + 'px', top: y + 'px' })
+                .appendTo(document.body);
+        animation(a);
     };
 
     var coordToPos = function(x, y) {
@@ -210,6 +252,7 @@ define(['logic', 'jquery'], function(logic, $) {
         gui.clear();
         gui.drawGrid();
         gui.drawDots();
+        gui.drawCycles();
         gui.drawDot(coordToPos(gui.mousePos.x, gui.mousePos.y), currentPlayer.hoverColor);
     };
 
@@ -242,6 +285,19 @@ define(['logic', 'jquery'], function(logic, $) {
 
         context.stroke();
     };
+    
+    gui.placeCycles = function(c, color){
+        console.log(c);
+        for (var i = 0; i < c.length; i++){
+            for (var j = 0; j < c[i].length; j++){
+                dots[c[i][j]].filled = true;
+            }
+            
+            cycles[cycles.length] =  { dots: c[i], color: color };
+            cycles[cycles.length - 1].dots[cycles[cycles.length - 1].dots.length] = c[i][0];
+        }
+        gui.refresh();
+    };
 
     gui.placeDot = function(dot, color)
     {
@@ -266,10 +322,30 @@ define(['logic', 'jquery'], function(logic, $) {
         for (var i = 0; i < dots.length; i++) {
             context.beginPath();
             context.strokeStyle = dots[i].color;
+            context.fillStyle = dots[i].color;
             var coord = posToCoord(dots[i].coord);
-            context.moveTo(coord.x + r + 0.5, coord.y);
+            context.moveTo(coord.x + r + 0.5, coord.y + 0.5);
             context.arc(coord.x + 0.5, coord.y + 0.5, r, 0, 2 * Math.PI);
-            context.stroke();
+            if (dots[i].filled){
+                context.fill();
+            } else {
+                context.stroke();
+            }
+        }
+    };
+    
+    gui.drawCycles = function(){
+        context.lineWidth = 4;
+        for (var i = 0; i < cycles.length; i++){
+            for (var j = 0; j < cycles[i].dots.length - 1; j++){
+                context.beginPath();
+                context.strokeStyle = cycles[i].color;
+                var dot1 = posToCoord(dots[cycles[i].dots[j]].coord);
+                var dot2 = posToCoord(dots[cycles[i].dots[j + 1]].coord);
+                context.moveTo(dot1.x + 0.5, dot1.y + 0.5);
+                context.lineTo(dot2.x + 0.5, dot2.y + 0.5);
+                context.stroke();
+            }
         }
     };
 
