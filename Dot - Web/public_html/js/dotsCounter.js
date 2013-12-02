@@ -16,7 +16,7 @@ define(function() {
         corners = leaveJustCorners(cycle);
         findOutXY();
         polySides = corners.length;
-        return countDotsInPolygon(corners, dots);
+        return countDotsInPolygon(dots);
     };
     
     //Return seperated arrays of cordinates X and Y
@@ -27,11 +27,11 @@ define(function() {
         }
     };
     
-    //Counts how meny dots is in polygon
-    var countDotsInPolygon = function(polygon, dots) {
+    //Counts how many dots are in polygon
+    var countDotsInPolygon = function(dots) {
         var counted = 0;
         for (var i = 0; i < dots.length; i++) {
-            if ( !dots[i].counted && pointInPolygon(dots[i].x, dots[i].y)) {
+            if (!dots[i].counted && pointInPolygon(dots[i].x, dots[i].y)) {
                 dots[i].counted = true;
                 counted++;
             }
@@ -106,5 +106,13 @@ define(function() {
             return 8;
         }
     };
+    
+//    dotsCounter.test = function(){
+//        polyX = [ 4, 5, 6, 7, 6, 5 ];
+//        polyY = [ 10, 11, 11, 10, 9, 9 ];
+//        polySides = 6;
+//        console.log(pointInPolygon(6, 12));
+//    };
+    
     return dotsCounter;
 });

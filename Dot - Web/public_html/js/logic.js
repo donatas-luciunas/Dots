@@ -206,6 +206,8 @@ define(['dotsCounter', 'mapper'], function(dotsCounter, mapper) {
 //    };
 
     logic.initialise = function() {
+        
+        //dotsCounter.test();
 
 //        gui.initialize({
 //            onClick: function (x, y){

@@ -251,6 +251,7 @@ define(['logic', 'jquery'], function(logic, $) {
     gui.refresh = function() {
         gui.clear();
         gui.drawGrid();
+        gui.drawGridNumbers();
         gui.drawDots();
         gui.drawCycles();
         gui.drawDot(coordToPos(gui.mousePos.x, gui.mousePos.y), currentPlayer.hoverColor);
@@ -286,8 +287,40 @@ define(['logic', 'jquery'], function(logic, $) {
         context.stroke();
     };
     
+    gui.drawGridNumbers = function (){
+        var p = 0.5;
+        context.lineWidth = 1;
+        context.fillStyle = "green";
+        
+        var cellWidth = (defaults.cellWidth * gui.scale);
+        var cellHeight = (defaults.cellHeight * gui.scale);
+        var startX = (cellWidth - gui.pos.x) % cellWidth;
+        var startY = (cellHeight - gui.pos.y) % cellHeight;
+        
+        if (startX < 0){
+            startX += cellWidth;
+        }
+        
+        if (startY < 0){
+            startY += cellHeight;
+        }
+        
+        var coordX = Math.ceil(gui.pos.x / cellWidth);
+        var coordY = Math.ceil(gui.pos.y / cellHeight);
+        
+        for (var x = startX; x <= gui.canvas.width; x += cellWidth) {
+            context.fillText(coordX + '', x + p + 2, p + 10);
+            coordX++;
+        }
+
+        for (var y = startY; y <= gui.canvas.height; y += cellHeight) {
+            context.fillText(coordY + '', p + 2, y + p + 10);
+            coordY++;
+        }
+        
+    };
+    
     gui.placeCycles = function(c, color){
-        console.log(c);
         for (var i = 0; i < c.length; i++){
             for (var j = 0; j < c[i].length; j++){
                 dots[c[i][j]].filled = true;
