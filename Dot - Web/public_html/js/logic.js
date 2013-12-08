@@ -207,7 +207,7 @@ define(['dotsCounter', 'mapper'], function(dotsCounter, mapper) {
 
     logic.initialise = function() {
         
-        //dotsCounter.test();
+        dotsCounter.test();
 
 //        gui.initialize({
 //            onClick: function (x, y){
@@ -272,8 +272,6 @@ define(['dotsCounter', 'mapper'], function(dotsCounter, mapper) {
         var countedScores = countScores(newCycles);
         scores[currentPlayer] += countedScores;
         console.log(scores);
-        var oldPlayer = currentPlayer;
-        
         var oldPlayer = currentPlayer;
         
         switchCurrentPlayer();

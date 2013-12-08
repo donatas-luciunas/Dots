@@ -11,8 +11,15 @@ define(function() {
     var corners = [];
     var polySides;
 
+    var cleanArrays = function(){
+        polyX.length = 0;
+        polyY.length = 0;
+        corners.length = 0;
+    }
     //Counts how many dots are in the cycle
     dotsCounter.count = function(cycle, dots) {
+        cleanArrays();
+        console.log(cycle);
         corners = leaveJustCorners(cycle);
         findOutXY();
         polySides = corners.length;
@@ -30,7 +37,9 @@ define(function() {
     //Counts how many dots are in polygon
     var countDotsInPolygon = function(dots) {
         var counted = 0;
+        console.log(dots);
         for (var i = 0; i < dots.length; i++) {
+            console.log(pointInPolygon(dots[i].x, dots[i].y));
             if (!dots[i].counted && pointInPolygon(dots[i].x, dots[i].y)) {
                 dots[i].counted = true;
                 counted++;
@@ -107,12 +116,28 @@ define(function() {
         }
     };
     
-//    dotsCounter.test = function(){
-//        polyX = [ 4, 5, 6, 7, 6, 5 ];
-//        polyY = [ 10, 11, 11, 10, 9, 9 ];
-//        polySides = 6;
-//        console.log(pointInPolygon(6, 12));
-//    };
+    dotsCounter.test = function(){
+        cycle = [{x: 9,  y: 8, caunted: false}, 
+                 {x: 10, y: 8, caunted: false}, 
+                 {x: 11, y: 7, caunted: false}, 
+                 {x: 11, y: 6, caunted: false}, 
+                 {x: 10, y: 5, caunted: false}, 
+                 {x: 9, y: 4, caunted: false}, 
+                 {x: 8, y: 3, caunted: false}, 
+                 {x: 7, y: 4, caunted: false}, 
+                 {x: 7, y: 5, caunted: false}, 
+                 {x: 7, y: 6, caunted: false}, 
+                 {x: 8, y: 7, caunted: false} ];
+        dots = [{x: 9, y: 5, caunted: false}, 
+                {x: 8, y: 6, caunted: false}, 
+                {x: 9, y: 7, caunted: false}, 
+                {x: 10, y: 7, caunted: false}, 
+                {x: 10, y: 6, caunted: false} ]
+        corners = leaveJustCorners(cycle);
+        findOutXY();
+        polySides = corners.length;           
+        console.log(countDotsInPolygon(dots));
+    };
     
     return dotsCounter;
 });
