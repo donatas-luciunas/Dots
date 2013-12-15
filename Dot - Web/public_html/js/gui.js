@@ -13,7 +13,8 @@ define(['logic', 'jquery'], function(logic, $) {
         dots = [],
         cycles = [],
         navigating = false,
-        currentPlayer;
+        currentPlayer,
+        scoresBoard = $('#scores');
        
     gui.scale = defaults.scale;
     gui.pos = { x: 0, y: 0 };
@@ -31,12 +32,13 @@ define(['logic', 'jquery'], function(logic, $) {
             var result = logic.placeDot(pos.x, pos.y);
             
             if (result.success){
-                
                 gui.placeDot(pos, currentPlayer.dotColor);
                 
                 if (result.cycles.length > 0){
                     gui.placeCycles(result.cycles, currentPlayer.dotColor);                    
                 }
+                
+                updateScores(result.scores);
                 
                 currentPlayer = logic.getCurrentPlayer();
                 
@@ -58,7 +60,7 @@ define(['logic', 'jquery'], function(logic, $) {
                 gui.pos.y = gui.pos.y + (gui.mousePos.y - e.clientY);
             }
             
-            gui.mousePos = { x: e.clientX, y: e.clientY }
+            gui.mousePos = { x: e.clientX, y: e.clientY };
             
             gui.refresh();
         });
@@ -66,7 +68,7 @@ define(['logic', 'jquery'], function(logic, $) {
         $canvas.mousedown(function(e){
             if (e.button === 2){
                 navigating = true;
-                gui.mousePos = { x: e.clientX, y: e.clientY }
+                gui.mousePos = { x: e.clientX, y: e.clientY };
                 return false;
             }
         }).mouseup(function(e){
@@ -187,8 +189,6 @@ define(['logic', 'jquery'], function(logic, $) {
         })();
         
         animate(coord.x - 9, coord.y - 9, animation);
-        
-        console.log('Position is already taken.');
     };
     
 //    var animate = function(x, y, w, h, animation){
@@ -230,13 +230,18 @@ define(['logic', 'jquery'], function(logic, $) {
         return {
             x: pos.x * defaults.cellWidth * gui.scale - gui.pos.x,
             y: pos.y * defaults.cellHeight * gui.scale - gui.pos.y
-        }
-    }
+        };
+    };
+    
+    var updateScores = function(scores){
+        scoresBoard.find('.red b').text(scores[0]);
+        scoresBoard.find('.blue b').text(scores[1]);
+    };
 
     gui.initialise = function()
     {
         gui.canvas = document.getElementById("matrix");
-        context = gui.canvas.getContext("2d")
+        context = gui.canvas.getContext("2d");
         var $canvas = $(gui.canvas);
         gui.canvas.height = $canvas.height();
         gui.canvas.width = $canvas.width();

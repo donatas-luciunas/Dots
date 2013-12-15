@@ -19,7 +19,6 @@ define(function() {
     //Counts how many dots are in the cycle
     dotsCounter.count = function(cycle, dots) {
         cleanArrays();
-        console.log(cycle);
         corners = leaveJustCorners(cycle);
         findOutXY();
         polySides = corners.length;
@@ -37,9 +36,7 @@ define(function() {
     //Counts how many dots are in polygon
     var countDotsInPolygon = function(dots) {
         var counted = 0;
-        console.log(dots);
         for (var i = 0; i < dots.length; i++) {
-            console.log(pointInPolygon(dots[i].x, dots[i].y));
             if (!dots[i].counted && pointInPolygon(dots[i].x, dots[i].y)) {
                 dots[i].counted = true;
                 counted++;
@@ -136,7 +133,6 @@ define(function() {
         corners = leaveJustCorners(cycle);
         findOutXY();
         polySides = corners.length;           
-        console.log(countDotsInPolygon(dots));
     };
     
     return dotsCounter;

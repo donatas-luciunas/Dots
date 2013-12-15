@@ -6,6 +6,7 @@
 define(['dotsCounter', 'mapper'], function(dotsCounter, mapper) {
 
     var ROOT_PARENT = -2;
+    var INFINITY = 9999;
     var logic = {};
     var dots = [[], []];
     var players = [{dotColor: "red", hoverColor: "rgba(255, 0, 0, 0.5)"},
@@ -73,6 +74,47 @@ define(['dotsCounter', 'mapper'], function(dotsCounter, mapper) {
 
             return path;
         };
+        
+        var removeRedundantVertices = function(cycle){
+            
+            cycle.push(cycle[0]);
+            cycle.unshift(cycle[cycle.length - 2]);
+            
+            for (var i = 0; i < cycle.length - 2; i++){
+                var dot1 = dots[cycle[i]];
+                var dot3 = dots[cycle[i + 2]];
+                if (Math.abs(dot1.x - dot3.x) < 2
+                    && Math.abs(dot1.y - dot3.y) < 2){
+                    cycle.splice(i + 1, 1);
+                    i--;
+                }
+            }
+            
+            cycle.splice(0, 1);
+            cycle.splice(cycle.length - 1, 1);
+            
+            return cycle;
+        };
+        
+        var getUnique = function(cycle){
+            var min = { v: INFINITY, i: -1 };
+            for (var i = 0; i < cycle.length; i++){
+                if (cycle[i] < min.v){
+                    min.v = cycle[i];
+                    min.i = i;
+                }
+            }
+            
+            var unique = [];
+            for (var i = min.i; i < cycle.length; i++){
+                unique[unique.length] = cycle[i];
+            }
+            for (var i = 0; i < min.i; i++){
+                unique[unique.length] = cycle[i];
+            }
+            
+            return unique;
+        };
 
         var findCycle = function(u, v) {
 
@@ -88,8 +130,10 @@ define(['dotsCounter', 'mapper'], function(dotsCounter, mapper) {
             for (var i = path2.length - 2; i >= 0; i--) {
                 cycle[cycle.length] = path2[i];
             }
+            
+            cycle = removeRedundantVertices(cycle);
 
-            return cycle;
+            return getUnique(cycle);
         };
 
         var getAdjacentDots = function(dot)
@@ -141,6 +185,30 @@ define(['dotsCounter', 'mapper'], function(dotsCounter, mapper) {
             }
             return -1;
         };
+        
+        var areCyclesEqual = function(c1, c2)
+        {
+            if (c1.length !== c2.length){
+                return false;
+            }
+            
+            for (var i = 0; i < c1.length; i++){
+                if (c1[i] !== c2[i]){
+                    return false;
+                }
+            }
+            
+            return true;
+        };
+        
+        var alreadyFound = function (cycle) {
+            for (var i = 0; i < newCycles.length; i++) {
+                if (areCyclesEqual(newCycles[i], cycle)) {
+                    return true;
+                }
+            }
+            return false;
+        };
 
         var bfs = function(root) {
 
@@ -167,14 +235,17 @@ define(['dotsCounter', 'mapper'], function(dotsCounter, mapper) {
                         // Radom ciklą
                         var cycle = findCycle(u, v);
                         if (cycle.length > 3) {
-                            var ind = alreadyIs(cycle);
-                            if (ind >= 0) {
-                                if (newCycles[ind].length >= cycle.length) {
-                                    newCycles[ind] = cycle;
-                                }
-                            } else {
-                                newCycles[newCycles.length] = cycle;
-                            }
+//                            var ind = alreadyIs(cycle);
+//                            if (ind >= 0) {
+//                                if (newCycles[ind].length >= cycle.length) {
+//                                    newCycles[ind] = cycle;
+//                                }
+//                            } else {
+//                                newCycles[newCycles.length] = cycle;
+//                            }
+                              if (!alreadyFound(cycle)){
+                                  newCycles[newCycles.length] = cycle;
+                              }
                         }
                     }
                 }
@@ -265,18 +336,16 @@ define(['dotsCounter', 'mapper'], function(dotsCounter, mapper) {
             }
             return score;
         };
+        
         var newCyclesIndexes = searchForCycles(dots[currentPlayer]);
-        console.log("NewCyclesIndexes");
-        console.log(newCyclesIndexes);
         var newCycles = cyclesIndexesToCycle(newCyclesIndexes);
         var countedScores = countScores(newCycles);
         scores[currentPlayer] += countedScores;
-        console.log(scores);
         var oldPlayer = currentPlayer;
         
         switchCurrentPlayer();
 
-        return {success: true, cycles: mapper.cyclesToGui(newCyclesIndexes, oldPlayer) };
+        return { success: true, cycles: mapper.cyclesToGui(newCyclesIndexes, oldPlayer), scores: scores };
 
         // On success should return array of dots path
         // and count score
