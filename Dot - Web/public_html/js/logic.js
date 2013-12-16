@@ -13,6 +13,7 @@ define(['dotsCounter', 'mapper'], function(dotsCounter, mapper) {
     currentPlayer = 0;
     var playersNumber = 2;
     var scores = [0, 0];
+    var allCycles = [];
 
     //------------------------------------
     //Variables for myself
@@ -265,13 +266,24 @@ define(['dotsCounter', 'mapper'], function(dotsCounter, mapper) {
             }
             return score;
         };
+        
+        var appendCycles = function(cycles){
+            for(var i = 0; i < cycles.length; i++){
+                allCycles[allCycles.length] = cycles[i];
+            }
+        };
+        
+        var sortAllCyces = function(){
+            for(var i = 0; i < allCyles.length; i++){
+                Arrays.sort(allCycles[i]);
+            }
+        }
+        
         var newCyclesIndexes = searchForCycles(dots[currentPlayer]);
-        console.log("NewCyclesIndexes");
-        console.log(newCyclesIndexes);
         var newCycles = cyclesIndexesToCycle(newCyclesIndexes);
+        appendCycles(newCycles);
         var countedScores = countScores(newCycles);
         scores[currentPlayer] += countedScores;
-        console.log(scores);
         var oldPlayer = currentPlayer;
         
         switchCurrentPlayer();
